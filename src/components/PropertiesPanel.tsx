@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { Button } from "@/components/ui/button";
@@ -6,20 +5,11 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { StateNodeData } from './StateNode';
-import { ActionEdgeData } from './ActionEdge';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Node, Edge } from '@xyflow/react';
+import { StateNodeData, ActionEdgeData } from '../types/flow';
 
 interface PropertiesPanelProps {
-  selectedElement: Node | Edge | null;
+  selectedElement: Node<StateNodeData> | Edge<ActionEdgeData> | null;
   onStateUpdate: (id: string, data: Partial<StateNodeData>) => void;
   onActionUpdate: (id: string, data: Partial<ActionEdgeData>) => void;
   onClose: () => void;
@@ -37,18 +27,13 @@ const PropertiesPanel = ({
 
   useEffect(() => {
     if (selectedElement) {
-      // Check if it's a node (state)
       if ('position' in selectedElement) {
-        const nodeData = selectedElement.data as StateNodeData;
-        setName(nodeData.name || '');
-        setDescription(nodeData.description || '');
-      } 
-      // Check if it's an edge (action)
-      else if ('source' in selectedElement) {
-        const edgeData = selectedElement.data as ActionEdgeData;
-        setName(edgeData?.name || '');
-        setDescription(edgeData?.description || '');
-        setType(edgeData?.type || 'core');
+        setName(selectedElement.data.name);
+        setDescription(selectedElement.data.description);
+      } else {
+        setName(selectedElement.data.name);
+        setDescription(selectedElement.data.description);
+        setType(selectedElement.data.type);
       }
     }
   }, [selectedElement]);
@@ -57,13 +42,11 @@ const PropertiesPanel = ({
     if (!selectedElement) return;
 
     if ('position' in selectedElement) {
-      // It's a node (state)
       onStateUpdate(selectedElement.id, {
         name,
         description,
       });
     } else if ('source' in selectedElement) {
-      // It's an edge (action)
       onActionUpdate(selectedElement.id, {
         name,
         description,
