@@ -1,6 +1,6 @@
 
 import { memo } from 'react';
-import { BaseEdge, EdgeLabelRenderer, getBezierPath, useReactFlow } from '@xyflow/react';
+import { BaseEdge, EdgeLabelRenderer, getBezierPath, useReactFlow, Position } from '@xyflow/react';
 import { ActionEdgeData } from '../types/flow';
 
 function ActionEdge({ 

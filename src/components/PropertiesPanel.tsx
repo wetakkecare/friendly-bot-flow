@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { Button } from "@/components/ui/button";
@@ -5,11 +6,11 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Node, Edge } from '@xyflow/react';
-import { StateNodeData, ActionEdgeData } from '../types/flow';
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { StateNodeData, ActionEdgeData, FlowNode, FlowEdge } from '../types/flow';
 
 interface PropertiesPanelProps {
-  selectedElement: Node<StateNodeData> | Edge<ActionEdgeData> | null;
+  selectedElement: FlowNode | FlowEdge | null;
   onStateUpdate: (id: string, data: Partial<StateNodeData>) => void;
   onActionUpdate: (id: string, data: Partial<ActionEdgeData>) => void;
   onClose: () => void;

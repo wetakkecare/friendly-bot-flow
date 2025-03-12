@@ -34,6 +34,28 @@ export type Bot = {
   id: string;
   name: string;
   description: string;
-  nodes: FlowNode[];
-  edges: FlowEdge[];
+  initial_prompt?: string;
+  instructions?: string;
+  documents?: string[];
+  chat_flow?: {
+    states: State[];
+    actions: Action[];
+  };
+  nodes?: FlowNode[];
+  edges?: FlowEdge[];
+}
+
+export type State = {
+  id: string;
+  name: string;
+  description: string;
+}
+
+export type Action = {
+  id: string;
+  name: string;
+  description: string;
+  type: "core" | "custom";
+  source: string;
+  target: string;
 }

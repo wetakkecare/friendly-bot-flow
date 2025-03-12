@@ -1,4 +1,5 @@
-import { useState, useCallback, useRef } from 'react';
+
+import { useState, useCallback, useRef, useEffect } from 'react';
 import {
   ReactFlow,
   Background,
@@ -20,7 +21,7 @@ import PropertiesPanel from './PropertiesPanel';
 import { Button } from './ui/button';
 import { Plus, Trash } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
-import { FlowNode, FlowEdge, StateNodeData, ActionEdgeData } from '../types/flow';
+import { FlowNode, FlowEdge, StateNodeData, ActionEdgeData, Bot, State, Action } from '../types/flow';
 
 interface FlowEditorProps {
   bot: {
@@ -73,6 +74,8 @@ const FlowEditor = ({ bot, onBotChange, filterQuery }: FlowEditorProps) => {
     id: action.id,
     source: action.source,
     target: action.target,
+    sourceHandle: null,
+    targetHandle: null,
     type: 'action',
     data: {
       name: action.name,
@@ -87,12 +90,21 @@ const FlowEditor = ({ bot, onBotChange, filterQuery }: FlowEditorProps) => {
   const [selectedElement, setSelectedElement] = useState<FlowNode | FlowEdge | null>(null);
   const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
   
+  function handleElementSelect(id: string) {
+    const node = nodes.find(n => n.id === id);
+    const edge = edges.find(e => e.id === id);
+    
+    setSelectedElement(node || edge || null);
+  }
+  
   const onConnect = useCallback(
     (params: Connection) => {
       const newEdge = {
         ...params,
         id: `e-${Date.now()}`,
         type: 'action',
+        sourceHandle: params.sourceHandle || null,
+        targetHandle: params.targetHandle || null,
         data: {
           name: 'Nueva acción',
           description: 'Descripción de la acción',
@@ -124,13 +136,6 @@ const FlowEditor = ({ bot, onBotChange, filterQuery }: FlowEditorProps) => {
     },
     [bot, onBotChange, setEdges]
   );
-  
-  function handleElementSelect(id: string) {
-    const node = nodes.find(n => n.id === id);
-    const edge = edges.find(e => e.id === id);
-    
-    setSelectedElement(node || edge || null);
-  }
   
   const onStateUpdate = useCallback(
     (id: string, data: Partial<StateNodeData>) => {
@@ -301,7 +306,7 @@ const FlowEditor = ({ bot, onBotChange, filterQuery }: FlowEditorProps) => {
     }));
     
     setNodes(filteredNodes);
-  }, [filterQuery, bot.chat_flow.states, setNodes]);
+  }, [filterQuery, bot.chat_flow.states, setNodes, initialNodes, nodes]);
   
   useEffect(() => {
     const nodeIds = nodes.map(node => node.id);
@@ -311,7 +316,7 @@ const FlowEditor = ({ bot, onBotChange, filterQuery }: FlowEditorProps) => {
     }));
     
     setEdges(visibleEdges);
-  }, [nodes, setEdges]);
+  }, [nodes, setEdges, edges]);
   
   return (
     <div className="w-full h-full flex">
