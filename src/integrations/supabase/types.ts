@@ -9,7 +9,102 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      bots: {
+        Row: {
+          chat_flow: Json
+          created_at: string
+          description: string | null
+          documents: Json | null
+          id: string
+          initial_prompt: string | null
+          instructions: string | null
+          is_public: boolean | null
+          name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          chat_flow?: Json
+          created_at?: string
+          description?: string | null
+          documents?: Json | null
+          id?: string
+          initial_prompt?: string | null
+          instructions?: string | null
+          is_public?: boolean | null
+          name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          chat_flow?: Json
+          created_at?: string
+          description?: string | null
+          documents?: Json | null
+          id?: string
+          initial_prompt?: string | null
+          instructions?: string | null
+          is_public?: boolean | null
+          name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          full_name: string | null
+          id: string
+          updated_at: string
+          username: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          full_name?: string | null
+          id: string
+          updated_at?: string
+          username?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          full_name?: string | null
+          id?: string
+          updated_at?: string
+          username?: string | null
+        }
+        Relationships: []
+      }
+      sample_bots: {
+        Row: {
+          created_at: string
+          description: string
+          feature_list: Json | null
+          id: string
+          name: string
+          thumbnail_url: string | null
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          feature_list?: Json | null
+          id?: string
+          name: string
+          thumbnail_url?: string | null
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          feature_list?: Json | null
+          id?: string
+          name?: string
+          thumbnail_url?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
