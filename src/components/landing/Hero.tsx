@@ -14,9 +14,6 @@ export default function Hero() {
         </p>
         <div className="mt-8 flex justify-center gap-4 animate-fade-up animation-delay-200">
           <AuthButton />
-          <a href="#samples" className="inline-flex items-center justify-center px-6 py-2 border border-blue-300 dark:border-blue-700 rounded-md text-blue-700 dark:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-800/50 transition-colors">
-            View Samples
-          </a>
         </div>
       </div>
     </div>
