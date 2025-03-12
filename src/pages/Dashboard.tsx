@@ -4,8 +4,16 @@ import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { PlusCircle } from "lucide-react";
+import { PlusCircle, Pencil, ExternalLink } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardFooter
+} from "@/components/ui/card";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -61,8 +69,8 @@ const Dashboard = () => {
         description: "Your new bot has been created successfully",
       });
       queryClient.invalidateQueries({ queryKey: ["user-bots"] });
-      // Optionally navigate to a bot editing page
-      // navigate(`/bot/${data.id}`);
+      // Navigate to the bot editing page
+      navigate(`/bot/${data.id}`);
     },
     onError: (error) => {
       toast({
@@ -78,21 +86,11 @@ const Dashboard = () => {
   };
 
   const handleEditBot = (botId: string) => {
-    // This would navigate to the bot editor page
-    // navigate(`/bot/${botId}`);
-    toast({
-      title: "Edit functionality",
-      description: "The edit functionality will be implemented soon",
-    });
+    navigate(`/bot/${botId}/edit`);
   };
 
   const handleOpenBot = (botId: string) => {
-    // This would navigate to the bot viewer page
-    // navigate(`/bot/${botId}/view`);
-    toast({
-      title: "Open functionality",
-      description: "The open functionality will be implemented soon",
-    });
+    navigate(`/bot/${botId}`);
   };
 
   useEffect(() => {
@@ -141,14 +139,36 @@ const Dashboard = () => {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {bots.map((bot: any) => (
-            <div key={bot.id} className="border rounded-lg p-6 hover:shadow-md transition-shadow">
-              <h3 className="text-xl font-medium mb-2">{bot.name}</h3>
-              <p className="text-gray-600 dark:text-gray-400 mb-4">{bot.description}</p>
-              <div className="flex justify-end">
-                <Button variant="outline" className="mr-2" onClick={() => handleEditBot(bot.id)}>Edit</Button>
-                <Button onClick={() => handleOpenBot(bot.id)}>Open</Button>
-              </div>
-            </div>
+            <Card key={bot.id} className="overflow-hidden hover:shadow-lg transition-shadow">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-xl font-semibold">{bot.name}</CardTitle>
+                <CardDescription className="line-clamp-2">{bot.description}</CardDescription>
+              </CardHeader>
+              <CardContent className="text-sm text-gray-600 dark:text-gray-400 pb-2">
+                <p className="line-clamp-3">
+                  {bot.instructions || "No instructions provided"}
+                </p>
+              </CardContent>
+              <CardFooter className="flex justify-end pt-2 gap-2">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => handleEditBot(bot.id)}
+                  className="flex items-center gap-1"
+                >
+                  <Pencil className="h-3.5 w-3.5" />
+                  Edit
+                </Button>
+                <Button 
+                  size="sm" 
+                  onClick={() => handleOpenBot(bot.id)}
+                  className="flex items-center gap-1"
+                >
+                  <ExternalLink className="h-3.5 w-3.5" />
+                  Open
+                </Button>
+              </CardFooter>
+            </Card>
           ))}
         </div>
       )}
