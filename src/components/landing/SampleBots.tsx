@@ -23,7 +23,7 @@ export default function SampleBots() {
     let position = 0;
     
     const animate = () => {
-      position -= 0.2; // Slow movement speed
+      position -= 0.5; // Increased speed from 0.2 to 0.5
       
       // Reset position when the first card is fully out of view
       const cardWidth = container.querySelector('div')?.offsetWidth || 300;
