@@ -29,7 +29,7 @@ export type FlowEdge = {
   target: string;
   sourceHandle: string | null;
   targetHandle: string | null;
-  type?: string;
+  type: string; // Changed from optional to required
   data: ActionEdgeData;
   hidden?: boolean;
   markerEnd?: {
@@ -40,6 +40,11 @@ export type FlowEdge = {
   };
 }
 
+export type ChatFlow = {
+  states: State[];
+  actions: Action[];
+}
+
 export type Bot = {
   id: string;
   name: string;
@@ -47,10 +52,7 @@ export type Bot = {
   initial_prompt?: string;
   instructions?: string;
   documents?: string[] | null;
-  chat_flow?: {
-    states: State[];
-    actions: Action[];
-  } | null;
+  chat_flow?: ChatFlow | null; // Using the explicit ChatFlow type
   user_id?: string;
   is_public?: boolean;
   created_at?: string;

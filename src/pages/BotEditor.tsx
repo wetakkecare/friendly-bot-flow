@@ -7,7 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Save } from "lucide-react";
 import FlowEditor from "@/components/FlowEditor";
-import { Bot } from "@/types/flow";
+import { Bot, ChatFlow } from "@/types/flow";
 
 const BotEditor = () => {
   const { botId } = useParams();
@@ -51,15 +51,21 @@ const BotEditor = () => {
         return null;
       }
       
-      // Ensure chat_flow has states and actions
-      if (!data.chat_flow) {
-        data.chat_flow = { states: [], actions: [] };
-      } else if (typeof data.chat_flow === 'object') {
-        if (!data.chat_flow.states) data.chat_flow.states = [];
-        if (!data.chat_flow.actions) data.chat_flow.actions = [];
-      }
+      // Transform and ensure chat_flow has states and actions
+      const chatFlow: ChatFlow = data.chat_flow 
+        ? (typeof data.chat_flow === 'object' 
+            ? {
+                states: Array.isArray(data.chat_flow.states) ? data.chat_flow.states : [],
+                actions: Array.isArray(data.chat_flow.actions) ? data.chat_flow.actions : []
+              }
+            : { states: [], actions: [] }
+          )
+        : { states: [], actions: [] };
       
-      return data as Bot;
+      return {
+        ...data,
+        chat_flow: chatFlow
+      } as Bot;
     },
     enabled: !!botId && !!session?.user?.id,
   });
