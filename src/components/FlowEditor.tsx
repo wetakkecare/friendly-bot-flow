@@ -226,6 +226,12 @@ const FlowEditorContent = ({ bot, onBotChange, readOnly = false }: FlowEditorPro
       y: Math.random() * 300,
     });
     
+    const newState: State = {
+      id: newNodeId,
+      name: 'New State',
+      description: 'State description',
+    };
+    
     const newNode: FlowNode = {
       id: newNodeId,
       position,
@@ -238,18 +244,13 @@ const FlowEditorContent = ({ bot, onBotChange, readOnly = false }: FlowEditorPro
       type: 'state',
     };
     
+    // Update local state first
     setNodes((nds) => [...nds, newNode]);
     
-    const newState: State = {
-      id: newNodeId,
-      name: 'New State',
-      description: 'State description',
-    };
-    
+    // Then update the bot object to persist changes
     const updatedBot = {
       ...bot,
       chat_flow: {
-        ...bot.chat_flow,
         states: [...(bot.chat_flow?.states || []), newState],
         actions: [...(bot.chat_flow?.actions || [])]
       }
@@ -309,7 +310,22 @@ const FlowEditorContent = ({ bot, onBotChange, readOnly = false }: FlowEditorPro
   
   useEffect(() => {
     if (!filterQuery) {
-      setNodes(initialNodes);
+      // When filter is cleared, reset to initial nodes
+      const updatedNodes = (bot.chat_flow?.states || []).map(state => ({
+        id: state.id,
+        type: 'state',
+        position: { 
+          x: Math.random() * 500, 
+          y: Math.random() * 400 
+        },
+        data: {
+          id: state.id,
+          name: state.name,
+          description: state.description,
+          onNodeClick: handleElementSelect
+        },
+      }));
+      setNodes(updatedNodes);
       return;
     }
     
@@ -323,7 +339,7 @@ const FlowEditorContent = ({ bot, onBotChange, readOnly = false }: FlowEditorPro
     }));
     
     setNodes(filteredNodes);
-  }, [filterQuery, setNodes, initialNodes, nodes]);
+  }, [filterQuery, setNodes, nodes, bot]);
   
   useEffect(() => {
     const nodeIds = nodes.filter(node => !node.hidden).map(node => node.id);
@@ -334,6 +350,56 @@ const FlowEditorContent = ({ bot, onBotChange, readOnly = false }: FlowEditorPro
     
     setEdges(visibleEdges);
   }, [nodes, setEdges, edges]);
+  
+  // This effect ensures our local state stays in sync with the bot data
+  useEffect(() => {
+    if (bot.chat_flow) {
+      const updatedNodes = bot.chat_flow.states.map(state => {
+        // Try to find existing node position
+        const existingNode = nodes.find(n => n.id === state.id);
+        
+        return {
+          id: state.id,
+          type: 'state',
+          position: existingNode ? existingNode.position : { 
+            x: Math.random() * 500, 
+            y: Math.random() * 400 
+          },
+          data: {
+            id: state.id,
+            name: state.name,
+            description: state.description,
+            onNodeClick: handleElementSelect
+          },
+        };
+      });
+      
+      setNodes(updatedNodes);
+      
+      const updatedEdges = bot.chat_flow.actions.map(action => ({
+        id: action.id,
+        source: action.source,
+        target: action.target,
+        sourceHandle: null,
+        targetHandle: null,
+        type: 'action',
+        markerEnd: {
+          type: MarkerType.ArrowClosed,
+          width: 20,
+          height: 20,
+          color: '#9b87f5',
+        },
+        data: {
+          name: action.name,
+          description: action.description,
+          type: action.type,
+          onEdgeClick: handleElementSelect
+        },
+      }));
+      
+      setEdges(updatedEdges);
+    }
+  }, [bot.chat_flow, setNodes, setEdges]);
   
   return (
     <div className="w-full h-[600px] flex border border-gray-200 rounded-md overflow-hidden">
