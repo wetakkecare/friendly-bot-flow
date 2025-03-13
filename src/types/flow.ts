@@ -32,7 +32,7 @@ export type FlowEdge = {
   type: string; // Changed from optional to required
   data: ActionEdgeData;
   hidden?: boolean;
-  markerEnd?: {
+  markerEnd: {  // Changed from optional to required
     type: MarkerType;
     width: number;
     height: number;
