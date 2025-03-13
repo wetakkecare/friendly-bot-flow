@@ -1,61 +1,64 @@
 
-import { memo } from 'react';
-import { BaseEdge, EdgeLabelRenderer, getBezierPath, useReactFlow, Position } from '@xyflow/react';
-import { ActionEdgeData } from '../types/flow';
+import { BaseEdge, EdgeLabelRenderer, EdgeProps, getBezierPath, Position } from '@xyflow/react';
+import { ActionEdgeData } from '@/types/flow';
 
-function ActionEdge({ 
+const ActionEdge = ({
   id,
+  source,
+  target,
   sourceX,
   sourceY,
   targetX,
   targetY,
   sourcePosition,
   targetPosition,
+  data,
   style = {},
   markerEnd,
-  data
-}: {
-  id: string;
-  sourceX: number;
-  sourceY: number;
-  targetX: number;
-  targetY: number;
-  sourcePosition: Position;
-  targetPosition: Position;
-  style?: React.CSSProperties;
-  markerEnd?: string;
-  data: ActionEdgeData;
-}) {
-  const handleClick = () => {
-    data.onEdgeClick(id);
-  };
-
+}: EdgeProps & { data: ActionEdgeData }) => {
   const [edgePath, labelX, labelY] = getBezierPath({
     sourceX,
     sourceY,
-    sourcePosition,
+    sourcePosition: sourcePosition || Position.Bottom,
     targetX,
     targetY,
-    targetPosition,
+    targetPosition: targetPosition || Position.Top,
   });
+
+  const handleEdgeClick = () => {
+    data.onEdgeClick(id);
+  };
+
+  const isCustomAction = data.type === 'custom';
+  const edgeColor = isCustomAction ? 'var(--color-bot-custom)' : 'var(--color-bot-action)';
 
   return (
     <>
-      <BaseEdge path={edgePath} markerEnd={markerEnd} style={style} />
+      <BaseEdge 
+        path={edgePath} 
+        markerEnd={markerEnd} 
+        style={{ ...style, stroke: edgeColor, strokeWidth: 2 }} 
+        onClick={handleEdgeClick}
+      />
       <EdgeLabelRenderer>
         <div
-          onClick={handleClick}
-          className="nodrag nopan cursor-pointer px-2 py-1 rounded bg-white shadow-md text-sm"
           style={{
+            position: 'absolute',
             transform: `translate(-50%, -50%) translate(${labelX}px,${labelY}px)`,
             pointerEvents: 'all',
           }}
+          className="nodrag nopan"
         >
-          {data.name}
+          <div 
+            className="bg-white px-2 py-1 rounded border shadow-sm text-xs cursor-pointer"
+            onClick={handleEdgeClick}
+          >
+            {data.name}
+          </div>
         </div>
       </EdgeLabelRenderer>
     </>
   );
-}
+};
 
-export default memo(ActionEdge);
+export default ActionEdge;

@@ -6,6 +6,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Save } from "lucide-react";
+import FlowEditor from "@/components/FlowEditor";
+import { Bot } from "@/types/flow";
 
 const BotEditor = () => {
   const { botId } = useParams();
@@ -13,6 +15,7 @@ const BotEditor = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [isEditing, setIsEditing] = useState(false);
+  const [localBot, setLocalBot] = useState<Bot | null>(null);
   
   // Check if we're in edit mode based on URL
   useEffect(() => {
@@ -53,6 +56,13 @@ const BotEditor = () => {
     enabled: !!botId && !!session?.user?.id,
   });
 
+  // Set local bot state when data is loaded
+  useEffect(() => {
+    if (bot) {
+      setLocalBot(bot);
+    }
+  }, [bot]);
+
   // Redirect to dashboard if not authenticated
   useEffect(() => {
     if (!sessionLoading && !session) {
@@ -75,7 +85,7 @@ const BotEditor = () => {
   }, [bot, botLoading, session, navigate, toast]);
 
   const updateBotMutation = useMutation({
-    mutationFn: async (updatedBot: any) => {
+    mutationFn: async (updatedBot: Bot) => {
       const { data, error } = await supabase
         .from("bots")
         .update(updatedBot)
@@ -102,6 +112,15 @@ const BotEditor = () => {
     },
   });
 
+  const handleBotChange = (updatedBot: Bot) => {
+    setLocalBot(updatedBot);
+  };
+
+  const handleSave = () => {
+    if (!localBot) return;
+    updateBotMutation.mutate(localBot);
+  };
+
   const handleBack = () => {
     navigate("/dashboard");
   };
@@ -114,7 +133,7 @@ const BotEditor = () => {
     );
   }
 
-  if (!bot) {
+  if (!localBot) {
     return null; // We'll be redirected by the useEffect
   }
 
@@ -126,7 +145,7 @@ const BotEditor = () => {
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Dashboard
           </Button>
-          <h1 className="text-2xl font-bold">{bot.name}</h1>
+          <h1 className="text-2xl font-bold">{localBot.name}</h1>
           {isEditing && (
             <span className="bg-yellow-100 text-yellow-800 text-xs font-medium px-2.5 py-0.5 rounded dark:bg-yellow-900 dark:text-yellow-300">
               Editing
@@ -137,10 +156,8 @@ const BotEditor = () => {
         {isEditing && (
           <Button 
             className="bg-gradient-to-r from-green-500 to-green-700 hover:from-green-600 hover:to-green-800"
-            onClick={() => toast({
-              title: "Save functionality",
-              description: "The save functionality will be implemented in the next steps",
-            })}
+            onClick={handleSave}
+            disabled={updateBotMutation.isPending}
           >
             <Save className="mr-2 h-4 w-4" />
             Save Changes
@@ -148,14 +165,12 @@ const BotEditor = () => {
         )}
       </div>
       
-      <div className="bg-gray-100 dark:bg-gray-800 p-8 rounded-lg shadow-inner min-h-[500px]">
-        <div className="text-center text-gray-500 dark:text-gray-400">
-          <p className="text-lg">
-            {isEditing 
-              ? "The visual flow editor will be implemented here" 
-              : "The bot visualization will be displayed here"}
-          </p>
-        </div>
+      <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg shadow-inner min-h-[500px]">
+        <FlowEditor 
+          bot={localBot} 
+          onBotChange={handleBotChange} 
+          readOnly={!isEditing} 
+        />
       </div>
     </div>
   );

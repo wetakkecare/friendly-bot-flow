@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -65,10 +64,9 @@ export default {
 				},
 				bot: {
 					state: '#9b87f5',
-					action: '#7E69AB',
-					custom: '#6E59A5',
-					core: '#D6BCFA',
-					hover: '#E5DEFF'
+					action: '#9b87f5',
+					custom: '#f59b87',
+					hover: '#f0f0f0',
 				}
 			},
 			borderRadius: {

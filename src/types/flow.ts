@@ -18,6 +18,7 @@ export type FlowNode = {
   type: string;
   position: { x: number; y: number };
   data: StateNodeData;
+  hidden?: boolean;
 }
 
 export type FlowEdge = {
@@ -28,6 +29,7 @@ export type FlowEdge = {
   targetHandle: string | null;
   type?: string;
   data: ActionEdgeData;
+  hidden?: boolean;
 }
 
 export type Bot = {
@@ -41,8 +43,10 @@ export type Bot = {
     states: State[];
     actions: Action[];
   };
-  nodes?: FlowNode[];
-  edges?: FlowEdge[];
+  user_id?: string;
+  is_public?: boolean;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export type State = {

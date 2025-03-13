@@ -1,21 +1,33 @@
 
-import { memo } from 'react';
 import { Handle, Position } from '@xyflow/react';
-import { StateNodeData } from '../types/flow';
+import { StateNodeData } from '@/types/flow';
 
-function StateNode({ data }: { data: StateNodeData }) {
-  const handleClick = () => {
-    data.onNodeClick(data.id);
+const StateNode = ({ data, id }: { data: StateNodeData; id: string }) => {
+  const handleNodeClick = () => {
+    data.onNodeClick(id);
   };
 
   return (
-    <div onClick={handleClick} className="px-4 py-2 shadow-md rounded-md bg-white">
-      <Handle type="target" position={Position.Top} className="custom-handle" />
-      <div className="font-bold">{data.name}</div>
-      <div className="text-sm">{data.description}</div>
-      <Handle type="source" position={Position.Bottom} className="custom-handle" />
+    <div 
+      className="border-2 border-bot-state bg-white rounded-md p-4 shadow-md cursor-pointer hover:shadow-lg transition-shadow"
+      onClick={handleNodeClick}
+    >
+      <Handle 
+        type="target" 
+        position={Position.Top} 
+        className="w-3 h-3 bg-bot-action"
+      />
+      <div className="text-center">
+        <h3 className="text-lg font-semibold mb-1 text-gray-800">{data.name}</h3>
+        <p className="text-xs text-gray-500 truncate max-w-[160px]">{data.description}</p>
+      </div>
+      <Handle 
+        type="source" 
+        position={Position.Bottom} 
+        className="w-3 h-3 bg-bot-action"
+      />
     </div>
   );
-}
+};
 
-export default memo(StateNode);
+export default StateNode;

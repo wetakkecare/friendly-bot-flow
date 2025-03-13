@@ -1,128 +1,117 @@
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { X } from 'lucide-react';
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { StateNodeData, ActionEdgeData, FlowNode, FlowEdge } from '../types/flow';
+import { Button } from './ui/button';
+import { Input } from './ui/input';
+import { Label } from './ui/label';
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
+import { FlowNode, FlowEdge, StateNodeData, ActionEdgeData } from '@/types/flow';
 
 interface PropertiesPanelProps {
-  selectedElement: FlowNode | FlowEdge | null;
+  selectedElement: FlowNode | FlowEdge;
   onStateUpdate: (id: string, data: Partial<StateNodeData>) => void;
   onActionUpdate: (id: string, data: Partial<ActionEdgeData>) => void;
   onClose: () => void;
 }
 
-const PropertiesPanel = ({ 
-  selectedElement, 
-  onStateUpdate, 
+const PropertiesPanel = ({
+  selectedElement,
+  onStateUpdate,
   onActionUpdate,
-  onClose 
+  onClose,
 }: PropertiesPanelProps) => {
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
-  const [type, setType] = useState<'core' | 'custom'>('core');
-
-  useEffect(() => {
-    if (selectedElement) {
-      if ('position' in selectedElement) {
-        setName(selectedElement.data.name);
-        setDescription(selectedElement.data.description);
-      } else {
-        setName(selectedElement.data.name);
-        setDescription(selectedElement.data.description);
-        setType(selectedElement.data.type);
-      }
-    }
-  }, [selectedElement]);
-
-  const handleSave = () => {
-    if (!selectedElement) return;
-
-    if ('position' in selectedElement) {
+  const isNode = 'position' in selectedElement;
+  const isEdge = 'source' in selectedElement;
+  
+  const [formData, setFormData] = useState({
+    name: isNode ? selectedElement.data.name : isEdge ? selectedElement.data.name : '',
+    description: isNode ? selectedElement.data.description : isEdge ? selectedElement.data.description : '',
+    type: isEdge ? selectedElement.data.type : 'core',
+  });
+  
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+  
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (isNode) {
       onStateUpdate(selectedElement.id, {
-        name,
-        description,
+        name: formData.name,
+        description: formData.description,
       });
-    } else if ('source' in selectedElement) {
+    } else if (isEdge) {
       onActionUpdate(selectedElement.id, {
-        name,
-        description,
-        type,
+        name: formData.name,
+        description: formData.description,
+        type: formData.type as 'core' | 'custom',
       });
     }
   };
-
-  if (!selectedElement) return null;
-
-  const isNode = 'position' in selectedElement;
-  const title = isNode ? 'Estado' : 'Acción';
-
+  
   return (
-    <div className="w-80 border-l border-border bg-background h-full overflow-y-auto">
-      <Card className="border-0 rounded-none h-full">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 px-4 pt-4 pb-2">
-          <CardTitle className="text-xl font-medium">
-            {title}
-          </CardTitle>
-          <Button 
-            variant="ghost" 
-            size="icon"
-            onClick={onClose}
-          >
-            <X className="h-4 w-4" />
-          </Button>
-        </CardHeader>
-        <CardContent className="space-y-4 p-4">
-          <div className="space-y-2">
-            <Label htmlFor="name">Nombre</Label>
+    <Card className="w-[300px] flex flex-col shadow-lg border-purple-100">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <CardTitle className="text-lg font-medium">
+          {isNode ? "Edit State" : "Edit Action"}
+        </CardTitle>
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          onClick={onClose} 
+          className="h-8 w-8"
+        >
+          <X className="h-4 w-4" />
+        </Button>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-1">
+            <Label htmlFor="name">Name</Label>
             <Input
               id="name"
-              placeholder="Nombre del elemento"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
+              name="name"
+              value={formData.name}
+              onChange={handleInputChange}
+              placeholder="Enter name"
             />
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="description">Descripción</Label>
-            <Textarea
+          
+          <div className="space-y-1">
+            <Label htmlFor="description">Description</Label>
+            <Input
               id="description"
-              placeholder="Descripción del elemento"
-              className="min-h-[100px]"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              name="description"
+              value={formData.description}
+              onChange={handleInputChange}
+              placeholder="Enter description"
             />
           </div>
-
-          {!isNode && (
-            <div className="space-y-2">
-              <Label>Tipo de acción</Label>
-              <RadioGroup 
-                value={type} 
-                onValueChange={(value) => setType(value as 'core' | 'custom')}
-                className="flex space-x-4"
+          
+          {isEdge && (
+            <div className="space-y-1">
+              <Label htmlFor="type">Type</Label>
+              <select
+                id="type"
+                name="type"
+                value={formData.type}
+                onChange={handleInputChange}
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="core" id="core" />
-                  <Label htmlFor="core" className="cursor-pointer">Core</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="custom" id="custom" />
-                  <Label htmlFor="custom" className="cursor-pointer">Custom</Label>
-                </div>
-              </RadioGroup>
+                <option value="core">Core</option>
+                <option value="custom">Custom</option>
+              </select>
             </div>
           )}
-
-          <Button className="w-full" onClick={handleSave}>
-            Guardar cambios
+          
+          <Button type="submit" className="w-full">
+            Save Changes
           </Button>
-        </CardContent>
-      </Card>
-    </div>
+        </form>
+      </CardContent>
+    </Card>
   );
 };
 
