@@ -30,7 +30,7 @@ const ActionEdge = ({
   };
 
   const isCustomAction = data.type === 'custom';
-  const edgeColor = isCustomAction ? 'var(--color-bot-custom)' : 'var(--color-bot-action)';
+  const edgeColor = isCustomAction ? '#e879f9' : '#9b87f5';
 
   return (
     <>

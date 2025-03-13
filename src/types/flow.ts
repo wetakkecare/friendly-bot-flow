@@ -1,4 +1,6 @@
 
+import { MarkerType } from '@xyflow/react';
+
 export interface StateNodeData extends Record<string, unknown> {
   id: string;
   name: string;
@@ -30,6 +32,12 @@ export type FlowEdge = {
   type?: string;
   data: ActionEdgeData;
   hidden?: boolean;
+  markerEnd?: {
+    type: MarkerType;
+    width: number;
+    height: number;
+    color: string;
+  };
 }
 
 export type Bot = {
@@ -38,11 +46,11 @@ export type Bot = {
   description: string;
   initial_prompt?: string;
   instructions?: string;
-  documents?: string[];
+  documents?: string[] | null;
   chat_flow?: {
     states: State[];
     actions: Action[];
-  };
+  } | null;
   user_id?: string;
   is_public?: boolean;
   created_at?: string;

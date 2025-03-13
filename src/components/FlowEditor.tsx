@@ -9,10 +9,10 @@ import {
   Connection,
   useNodesState,
   useEdgesState,
-  useReactFlow,
   Panel,
   ReactFlowProvider,
   MarkerType,
+  useReactFlow,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 
@@ -39,11 +39,13 @@ const edgeTypes = {
   action: ActionEdge,
 };
 
-const FlowEditor = ({ bot, onBotChange, readOnly = false }: FlowEditorProps) => {
+const FlowEditorContent = ({ bot, onBotChange, readOnly = false }: FlowEditorProps) => {
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
   const [filterQuery, setFilterQuery] = useState("");
+  const reactFlow = useReactFlow();
   
+  // Initialize nodes from bot states or empty array
   const initialNodes: FlowNode[] = (bot.chat_flow?.states || []).map(state => ({
     id: state.id,
     type: 'state',
@@ -59,6 +61,7 @@ const FlowEditor = ({ bot, onBotChange, readOnly = false }: FlowEditorProps) => 
     },
   }));
   
+  // Initialize edges from bot actions or empty array
   const initialEdges: FlowEdge[] = (bot.chat_flow?.actions || []).map(action => ({
     id: action.id,
     source: action.source,
@@ -133,7 +136,6 @@ const FlowEditor = ({ bot, onBotChange, readOnly = false }: FlowEditorProps) => 
       const updatedBot = {
         ...bot,
         chat_flow: {
-          ...bot.chat_flow,
           states: [...(bot.chat_flow?.states || [])],
           actions: [...(bot.chat_flow?.actions || []), newAction]
         }
@@ -334,7 +336,7 @@ const FlowEditor = ({ bot, onBotChange, readOnly = false }: FlowEditorProps) => 
   }, [nodes, setEdges, edges]);
   
   return (
-    <div className="w-full h-full flex">
+    <div className="w-full h-[600px] flex border border-gray-200 rounded-md overflow-hidden">
       <div ref={reactFlowWrapper} className="flex-grow h-full">
         <ReactFlow
           nodes={nodes}
@@ -404,10 +406,10 @@ const FlowEditor = ({ bot, onBotChange, readOnly = false }: FlowEditorProps) => 
   );
 };
 
-const FlowEditorWithProvider = (props: FlowEditorProps) => (
+const FlowEditor = (props: FlowEditorProps) => (
   <ReactFlowProvider>
-    <FlowEditor {...props} />
+    <FlowEditorContent {...props} />
   </ReactFlowProvider>
 );
 
-export default FlowEditorWithProvider;
+export default FlowEditor;

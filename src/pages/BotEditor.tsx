@@ -51,7 +51,15 @@ const BotEditor = () => {
         return null;
       }
       
-      return data;
+      // Ensure chat_flow has states and actions
+      if (!data.chat_flow) {
+        data.chat_flow = { states: [], actions: [] };
+      } else if (typeof data.chat_flow === 'object') {
+        if (!data.chat_flow.states) data.chat_flow.states = [];
+        if (!data.chat_flow.actions) data.chat_flow.actions = [];
+      }
+      
+      return data as Bot;
     },
     enabled: !!botId && !!session?.user?.id,
   });
@@ -165,7 +173,7 @@ const BotEditor = () => {
         )}
       </div>
       
-      <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg shadow-inner min-h-[500px]">
+      <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg shadow-inner">
         <FlowEditor 
           bot={localBot} 
           onBotChange={handleBotChange} 

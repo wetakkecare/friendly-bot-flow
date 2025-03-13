@@ -1,11 +1,12 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { FlowNode, FlowEdge, StateNodeData, ActionEdgeData } from '@/types/flow';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 
 interface PropertiesPanelProps {
   selectedElement: FlowNode | FlowEdge;
@@ -24,14 +25,34 @@ const PropertiesPanel = ({
   const isEdge = 'source' in selectedElement;
   
   const [formData, setFormData] = useState({
-    name: isNode ? selectedElement.data.name : isEdge ? selectedElement.data.name : '',
-    description: isNode ? selectedElement.data.description : isEdge ? selectedElement.data.description : '',
-    type: isEdge ? selectedElement.data.type : 'core',
+    name: '',
+    description: '',
+    type: 'core',
   });
+
+  useEffect(() => {
+    if (isNode) {
+      setFormData({
+        name: selectedElement.data.name || '',
+        description: selectedElement.data.description || '',
+        type: 'core',
+      });
+    } else if (isEdge) {
+      setFormData({
+        name: selectedElement.data.name || '',
+        description: selectedElement.data.description || '',
+        type: selectedElement.data.type || 'core',
+      });
+    }
+  }, [selectedElement, isNode, isEdge]);
   
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleTypeChange = (value: string) => {
+    setFormData((prev) => ({ ...prev, type: value as 'core' | 'custom' }));
   };
   
   const handleSubmit = (e: React.FormEvent) => {
@@ -93,16 +114,15 @@ const PropertiesPanel = ({
           {isEdge && (
             <div className="space-y-1">
               <Label htmlFor="type">Type</Label>
-              <select
-                id="type"
-                name="type"
-                value={formData.type}
-                onChange={handleInputChange}
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                <option value="core">Core</option>
-                <option value="custom">Custom</option>
-              </select>
+              <Select value={formData.type} onValueChange={handleTypeChange}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="core">Core</SelectItem>
+                  <SelectItem value="custom">Custom</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           )}
           
